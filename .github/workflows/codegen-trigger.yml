@@ -1,0 +1,25 @@
+name: Codegen Auto-Assign
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'codegen-agent') ||
+      contains(github.event.issue.labels.*.name, 'bug') ||
+      contains(github.event.issue.labels.*.name, 'enhancement')
+    
+    steps:
+    - name: Add comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🤖 **Codegen Agent Status**\n\nThis issue has been detected for autonomous development.\n\n**Auto-assign criteria met:**\n- Label: `' + context.payload.label.name + '`\n\n**Next steps:**\n1. ✅ Codegen will analyze requirements\n2. 🔄 Create implementation plan\n3. 🚀 Start autonomous development\n4. 📦 Create pull request\n\n*Estimated completion: 30-60 minutes*\n\n---\n*Powered by Codegen Autonomous System*'
+          })
